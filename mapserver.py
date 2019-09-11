@@ -17,7 +17,7 @@ import json
 from datetime import datetime, timedelta
 from functools import wraps
 
-maxlen=512
+maxlen=100
 
 points=deque(maxlen=maxlen)
 mutex=threading.Lock()
@@ -55,8 +55,8 @@ class throttle(object):
 
 #@throttle(seconds=0.1)
 def redraw():
-  print("REDRAW")
-  print("Pending: {}".format(gtk.events_pending())) 
+  #print("REDRAW")
+  #print("Pending: {}".format(gtk.events_pending())) 
   da.queue_draw()
   return True
 
@@ -73,7 +73,7 @@ class GP(BaseHTTPRequestHandler):
     #print(parse_qs(self.path[2:]))
     #print(form.getvalue("x"))
     #print(form.getvalue("y"))
-    self.wfile.write("OK".encode())
+    #self.wfile.write("OK".encode())
   def do_POST(self):
     self._set_headers()
     #form = cgi.FieldStorage(
@@ -87,10 +87,12 @@ class GP(BaseHTTPRequestHandler):
     self.data_string = self.rfile.read(int(self.headers['Content-Length']))
     self.send_response(200)
     self.end_headers()
+    #print(self.data_string)
     data = json.loads(self.data_string)
-    x=data["x"]
-    y=data["y"]
-    #print("({}, {})". format(x, y))
+    x=float(data["x"])
+    y=float(data["y"])
+    z=float(data["y"])
+    print("({:6.2f}, {:6.2f}, {:6.2f})". format(x, y, z))
     x=int((float(x)+20)*15);
     y=int((float(y)+20)*15);
     mutex.acquire()
@@ -126,7 +128,7 @@ class GP(BaseHTTPRequestHandler):
 
 def expose(widget, cr):
 	#cr = widget.window.cairo_create()
-  print("DRAW")
+  #print("DRAW")
   mutex.acquire()
   try:
     pointsC=points.copy()
